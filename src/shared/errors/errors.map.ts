@@ -7,6 +7,14 @@ export const errorsMap = {
     key: 'producer.notFound',
     defaultMessage: 'Producer not found',
   },
+  HARVEST_NOT_FOUND: {
+    key: 'harvest.notFound',
+    defaultMessage: 'Harvest not found',
+  },
+  CROP_NOT_FOUND: {
+    key: 'crop.notFound',
+    defaultMessage: 'Crop not found',
+  },
   PROPERTY_NOT_FOUND: {
     key: 'property.notFound',
     defaultMessage: 'Property not found',
