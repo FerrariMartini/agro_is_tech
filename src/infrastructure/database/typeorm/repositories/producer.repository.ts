@@ -38,12 +38,17 @@ export class TypeOrmProducerRepository
       taxIdHash: domain.taxIdHash,
       name: domain.name,
       email: domain.email,
+      createdAt: domain.createdAt,
       updatedAt: domain.updatedAt,
+      deletedAt: domain.deletedAt,
     };
   }
 
   async findByTaxIdHash(taxIdHash: string): Promise<Producer | null> {
-    const found = await this.repo.findOneBy({ taxIdHash });
+    const found = await this.repo.findOne({
+      where: { taxIdHash },
+      withDeleted: true,
+    });
     return found ? this.toDomainEntity(found) : null;
   }
 }

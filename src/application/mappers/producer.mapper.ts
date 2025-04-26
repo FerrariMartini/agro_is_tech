@@ -21,7 +21,7 @@ export class ProducerMapper {
       id: producer.id,
       taxId: this.crypto.decrypt(producer.taxId),
       name: producer.name,
-      email: producer.email,
+      email: this.crypto.decrypt(producer.email),
       createdAt: producer.createdAt,
     };
   }
@@ -31,7 +31,7 @@ export class ProducerMapper {
       id: producer.id,
       taxId: this.crypto.decrypt(producer.taxId),
       name: producer.name,
-      email: producer.email,
+      email: this.crypto.decrypt(producer.email),
       createdAt: producer.createdAt,
       updatedAt: producer.updatedAt,
     };

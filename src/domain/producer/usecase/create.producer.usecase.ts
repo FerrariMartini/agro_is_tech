@@ -29,15 +29,56 @@ export class CreateProducerUseCase extends CreateEntityUseCase<Producer> {
     const normalizedTaxId = removeNonDigits(dto.taxId);
     const taxIdHash = this.crypto.hash(normalizedTaxId);
     const producerFound = await this.repository.findByTaxIdHash(taxIdHash);
-
-    if (producerFound) DuplicateTaxIdException();
-
     const taxIdEncrypted = this.crypto.encrypt(normalizedTaxId);
     const emailEncrypted = this.crypto.encrypt(dto.email);
 
-    const now = new Date();
+    if (producerFound) {
+      if (this.isActive(producerFound)) {
+        DuplicateTaxIdException();
+      }
+      return this.reactivateProducer(dto, producerFound, emailEncrypted);
+    }
 
-    const producer = new Producer(
+    return this.createNewProducer(
+      dto,
+      taxIdHash,
+      taxIdEncrypted,
+      emailEncrypted,
+    );
+  }
+
+  private isActive(producer: Producer): boolean {
+    return producer.deletedAt === null;
+  }
+
+  private async reactivateProducer(
+    dto: CreateProducerDto,
+    currentProducer: Producer,
+    emailEncrypted: string,
+  ): Promise<Producer> {
+    const now = new Date();
+    const reactivated = new Producer(
+      currentProducer.id,
+      currentProducer.taxId,
+      currentProducer.taxIdHash,
+      dto.name,
+      emailEncrypted,
+      currentProducer.createdAt,
+      now,
+      null,
+    );
+
+    return this.repository.update(reactivated);
+  }
+
+  private async createNewProducer(
+    dto: CreateProducerDto,
+    taxIdHash: string,
+    taxIdEncrypted: string,
+    emailEncrypted: string,
+  ): Promise<Producer> {
+    const now = new Date();
+    const newProducer = new Producer(
       uuidv4(),
       taxIdEncrypted,
       taxIdHash,
@@ -48,6 +89,6 @@ export class CreateProducerUseCase extends CreateEntityUseCase<Producer> {
       null,
     );
 
-    return this.repository.create(producer);
+    return this.repository.create(newProducer);
   }
 }

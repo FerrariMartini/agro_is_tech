@@ -1,8 +1,8 @@
 import { CreateProducerUseCase } from '@/domain/producer/usecase/create.producer.usecase';
 import { Producer } from '@/domain/producer/entities/producer.entity';
-import { CreateProducerDto } from '@/domain/producer/dto/create.producer.dto';
 import { removeNonDigits } from '@/shared/utils/formatters';
 import { ConflictException } from '@nestjs/common';
+import { CreateProducerDto } from '@/domain/producer/dto/create.producer.dto';
 
 jest.mock('@/shared/utils/formatters', () => ({
   removeNonDigits: jest.fn((value) => value.replace(/\D/g, '')),
@@ -12,6 +12,7 @@ describe('CreateProducerUseCase', () => {
   const mockRepo = {
     findByTaxIdHash: jest.fn(),
     create: jest.fn(),
+    update: jest.fn(),
   };
 
   const mockCrypto = {
@@ -23,50 +24,70 @@ describe('CreateProducerUseCase', () => {
 
   afterEach(() => jest.clearAllMocks());
 
+  const dto: CreateProducerDto = {
+    name: 'John Doe',
+    taxId: '123.456.789-00',
+    email: 'jd@gmail.com',
+  };
+
+  const normalized = '12345678900';
+  const taxIdHash = `hash-${normalized}`;
+  const taxIdEncrypted = `enc-${normalized}`;
+  const emailEncrypted = `enc-${dto.email}`;
+
+  const createdAndActiveProducer = new Producer(
+    'uuid',
+    taxIdEncrypted,
+    taxIdHash,
+    dto.name,
+    emailEncrypted,
+    new Date(),
+    new Date(),
+    null,
+  );
   it('should create a new producer with encrypted and hashed taxId', async () => {
-    const dto: CreateProducerDto = {
-      name: 'John Doe',
-      taxId: '123.456.789-00',
-      email: 'jd@gmail.com',
-    };
-
-    const normalized = '12345678900';
-    const hash = `hash-${normalized}`;
-    const encrypted = `enc-${normalized}`;
-
     mockRepo.findByTaxIdHash.mockResolvedValue(null);
-    const createdProducer = new Producer(
-      'uuid',
-      encrypted,
-      hash,
-      dto.name,
-      dto.email,
-      new Date(),
-      new Date(),
-      null,
-    );
-    mockRepo.create.mockResolvedValue(createdProducer);
+    mockRepo.create.mockResolvedValue(createdAndActiveProducer);
 
     const result = await useCase.execute(dto);
 
     expect(removeNonDigits).toHaveBeenCalledWith(dto.taxId);
     expect(mockCrypto.hash).toHaveBeenCalledWith(normalized);
     expect(mockCrypto.encrypt).toHaveBeenCalledWith(normalized);
-    expect(mockRepo.findByTaxIdHash).toHaveBeenCalledWith(hash);
+    expect(mockCrypto.encrypt).toHaveBeenCalledWith(dto.email);
+    expect(mockRepo.findByTaxIdHash).toHaveBeenCalledWith(taxIdHash);
     expect(mockRepo.create).toHaveBeenCalledWith(expect.any(Producer));
     expect(result.name).toBe(dto.name);
-    expect(result.taxId).toBe(encrypted);
+    expect(result.taxId).toBe(taxIdEncrypted);
+    expect(result.email).toBe(emailEncrypted);
   });
 
-  it('should throw DuplicateTaxIdException if hash already exists', async () => {
-    mockRepo.findByTaxIdHash.mockResolvedValue({ id: 'existing' });
+  it('should throw ConflictException if producer with taxId is active', async () => {
+    mockRepo.findByTaxIdHash.mockResolvedValue(createdAndActiveProducer);
+    await expect(useCase.execute(dto)).rejects.toThrow(ConflictException);
+  });
 
-    await expect(
-      useCase.execute({
-        name: 'Jane',
-        taxId: '11122233344',
-        email: 'jj@gmail.com',
-      }),
-    ).rejects.toThrow(ConflictException);
+  it('should reactivate a soft-deleted producer', async () => {
+    const softDeletedProducer = new Producer(
+      'id',
+      taxIdEncrypted,
+      taxIdHash,
+      dto.name,
+      emailEncrypted,
+      new Date('2020-01-01'),
+      new Date('2020-01-01'),
+      new Date('2024-01-01'),
+    );
+
+    mockRepo.findByTaxIdHash.mockResolvedValue(softDeletedProducer);
+    mockRepo.update.mockImplementation(async (producer) => producer);
+
+    const result = await useCase.execute(dto);
+
+    expect(mockRepo.update).toHaveBeenCalledWith(expect.any(Producer));
+    expect(result.id).toBe('id');
+    expect(result.name).toBe(dto.name);
+    expect(result.email).toBe(emailEncrypted);
+    expect(result.deletedAt).toBeNull();
   });
 });

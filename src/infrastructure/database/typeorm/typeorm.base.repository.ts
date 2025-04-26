@@ -1,4 +1,4 @@
-import { ObjectLiteral, Repository } from 'typeorm';
+import { IsNull, ObjectLiteral, Repository } from 'typeorm';
 
 export abstract class TypeOrmBaseRepository<
   TOrm extends ObjectLiteral,
@@ -15,7 +15,7 @@ export abstract class TypeOrmBaseRepository<
   }
 
   async findAll(): Promise<TDomain[]> {
-    const all = await this.repo.find();
+    const all = await this.repo.find({ where: { deletedAt: IsNull() as any } });
     return all.map((e) => this.toDomainEntity(e));
   }
 
@@ -28,8 +28,8 @@ export abstract class TypeOrmBaseRepository<
   async update(domain: TDomain): Promise<TDomain> {
     const updatePayload = this.toOrmPartial(domain);
     await this.repo.update((domain as any).id, updatePayload);
-    const updated = await this.repo.findOneBy({ id: (domain as any).id });
-    return this.toDomainEntity(updated!);
+    const updated = await this.repo.findOneByOrFail({ id: (domain as any).id });
+    return this.toDomainEntity(updated);
   }
 
   async delete(id: string): Promise<void> {
