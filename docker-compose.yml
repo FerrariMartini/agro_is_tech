@@ -14,6 +14,8 @@ services:
       - .:/app
       - /app/node_modules
     command: npm run start:dev
+    networks:
+      - agro-network
 
   db:
     container_name: agro-db
@@ -27,6 +29,12 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - agro-db-data:/var/lib/postgresql/data
+    networks:
+      - agro-network
 
 volumes:
   agro-db-data:
+
+networks:
+  agro-network:
+    driver: bridge
