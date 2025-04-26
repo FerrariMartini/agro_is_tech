@@ -10,7 +10,7 @@ Foco em boas práticas de engenharia como testes unitários, segurança de dados
 
 - **Backend**: NestJS + TypeScript
 - **Infraestrutura**: Docker + Docker Compose + PostgreSQL
-- **Segurança**: JWT, Criptografia AES-256 para dados sensíveis
+- **Segurança**: Criptografia AES-256 para dados sensíveis
 - **Documentação**: Swagger (`/docs`)
 - **Arquitetura**: Hexagonal (Ports and Adapters)
 - **Boas práticas**: SOLID, DRY, KISS, Clean Code
@@ -20,11 +20,102 @@ Foco em boas práticas de engenharia como testes unitários, segurança de dados
 
 ---
 
+
+## 🛠️ Como iniciar o projeto via Docker (DEV)
+
+### Pré-requisitos
+- [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/install/)
+
+### 📦 Passo 1 — Configurar variáveis de ambiente
+
+Crie um arquivo `.env` na raiz:
+
+```dotenv
+# Banco de Dados
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=agro_db
+
+DB_HOST=db
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_NAME=agro_db
+
+# Chaves de Criptografia
+CRYPTO_SECRET_KEY=... (64 hex)
+CRYPTO_IV=... (32 hex)
+```
+
+Gere as chaves seguras:
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+node -e "console.log(require('crypto').randomBytes(16).toString('hex'))"
+```
+
+---
+
+### 🚀 Passo 2 — Subir o ambiente
+
+```bash
+docker-compose up -d --build
+```
+
+Isso irá:
+- Subir o PostgreSQL (`agro-db`)
+- Buildar e iniciar a API NestJS (`agro-api`)
+
+---
+
+### ⚙️ O que acontece automaticamente?
+
+| Etapa | Acontecimento |
+|:---|:---|
+| Banco de dados sobe (Postgres) | ✅ Cria banco agro_db |
+| API conecta no banco | ✅ Via TypeORM |
+| TypeORM executa migrations | ✅ `migrationsRun: true` |
+| NestJS executa SeedService | ✅ Banco populado com dados de DEV |
+
+Sem comandos manuais necessários!
+
+---
+
+### 📊 Dados iniciais gerados automaticamente
+- 5 **Producers**
+- Cada producer com 3 **Properties**
+- Cada property com 10 **Harvests**
+- Cada harvest com 1 **Crop** aleatório (Café, Soja, Milho, etc.)
+
+---
+
+### 🧪 Passo 3 — Testar a API
+
+Acesse Swagger:
+- [`http://localhost:3000/docs`](http://localhost:3000/docs)
+
+Ou teste um endpoint:
+
+```bash
+curl -X GET http://localhost:3000/api/producers   -H "Content-Type: application/json"   -H "X-API-Version: 1"
+```
+
+---
+
+### 🛑 Como parar o ambiente
+
+```bash
+docker-compose down -v 
+```
+
+---
+
+
 ## 📐 Regras de Negócio Atendidas - Domínio Agro (Crop, Harvest, Property, Producer)
 
 ### 1. Permitir o cadastro, edição e exclusão de produtores rurais.
-- Os casos de uso `CreateProducerUseCase`, `UpdateProducerUseCase` e `DeleteEntityUseCase` permitem essas operações.
-- O `BaseCrudController` expõe os endpoints REST necessários (`POST`, `PUT`, `DELETE`).
+- Os casos de uso `CreateProducerUseCase` e `UpdateProducerUseCase` permitem essas operações.
+- O `BaseCrudController` expõe os endpoints REST necessários (`GET`, `POST`, `PUT` e `DELETE`).
 - A arquitetura hexagonal isola essas operações no domínio, mantendo regras e persistência desacopladas.
 
 ---
@@ -41,13 +132,6 @@ Foco em boas práticas de engenharia como testes unitários, segurança de dados
 - A entidade `Crop` possui um `harvestId`.
 - A entidade `Harvest` possui um `propertyId` (fazenda).
 - Portanto, várias `Crop` podem ser vinculadas à mesma `Harvest`, que pertence à `Property`.
-
-**Relacionamento final:**
-```
-Producer → Property (1:N)  
-Property → Harvest (1:N)  
-Harvest → Crop (1:N)
-```
 
 ---
 
@@ -75,6 +159,7 @@ Harvest → Crop (1:N)
 - `id`: UUID (PK)
 - `taxId`: string (criptografado)
 - `name`: string
+- `email`: string
 - `createdAt`: datetime
 - `updatedAt`: datetime
 - `deletedAt`: datetime \| null (soft delete)
@@ -92,19 +177,19 @@ Harvest → Crop (1:N)
 - `updatedAt`: datetime
 - `deletedAt`: datetime \| null (soft delete)
 
-
 #### Harvest
 - `id`: UUID (PK)
 - `year`: int
+- `description`: string
 - `propertyId`: UUID (FK → Property.id)
 - `createdAt`: datetime
 - `updatedAt`: datetime
 - `deletedAt`: datetime \| null (soft delete)
 
-
 #### Crop
 - `id`: UUID (PK)
-- `name`: string (ex: Soja, Milho, Café)
+- `description`: string
+- `seed`: string
 - `harvestId`: UUID (FK → Harvest.id)
 - `createdAt`: datetime
 - `updatedAt`: datetime
@@ -126,6 +211,7 @@ Harvest → Crop (1:N)
 ║ tax_id        string        (encrypted)║
 ║ tax_id_hash   string        (hash)     ║
 ║ name          string                   ║
+║ email         string        (encrypted)║
 ║ created_at    datetime                 ║
 ║ updated_at    datetime                 ║
 ║ deleted_at    datetime|null            ║
@@ -154,8 +240,9 @@ Harvest → Crop (1:N)
                     ╔════════════════════════════╗
                     ║          Harvest           ║
                     ╠════════════════════════════╣
-                    ║ id          UUID    (PK)   ║
-                    ║ year        int            ║
+                    ║ id           UUID    (PK)  ║
+                    ║ year         int           ║
+                    ║ description  string        ║                    
                     ║ property_id  UUID    (FK)  ║
                     ╚════════════════════════════╝
                               │
@@ -164,9 +251,10 @@ Harvest → Crop (1:N)
                     ╔════════════════════════════╗
                     ║           Crop             ║
                     ╠════════════════════════════╣
-                    ║ id         UUID     (PK)   ║
-                    ║ name       string          ║
-                    ║ harvest_id UUID     (FK)   ║
+                    ║ id             UUID (PK)   ║
+                    ║ description    string      ║    
+                    ║ seed           string      ║    
+                    ║ harvest_id     UUID  (FK)  ║
                     ╚════════════════════════════╝
 
 ```
@@ -207,8 +295,8 @@ O sistema utiliza abstrações reutilizáveis para CRUDs com tipagem forte:
 
 Use cases reutilizáveis em `@shared/usecase`:
 
-- `CreateEntityUseCase<T>` (abstrato)
-- `UpdateEntityUseCase<T>` (abstrato)
+- `CreateEntityUseCase<T>`
+- `UpdateEntityUseCase<T>`
 - `FindEntityByIdUseCase<T>`
 - `FindAllEntitiesUseCase<T>`
 - `DeleteEntityUseCase<T>`
@@ -284,29 +372,9 @@ npm run test:cov
 
 ---
 
-## 🛠️ .env (variáveis sensíveis)
-
-```dotenv
-DATABASE_HOST=localhost
-DATABASE_PORT=5432
-DATABASE_USER=postgres
-DATABASE_PASSWORD=postgres
-DATABASE_NAME=agro
-
-CRYPTO_SECRET_KEY=... (64 hex chars)
-CRYPTO_IV=... (32 hex chars)
-```
-
-> Use a função `crypto.randomBytes(32).toString('hex')` para gerar chaves seguras.
-
----
-
-## ⚙️ Scripts úteis
+## ⚙️ Scripts úteis sem docker
 
 ```bash
-# Start local com Docker
-docker-compose up --build
-
 # Start sem Docker
 npm install
 npm run start:dev
@@ -323,5 +391,6 @@ curl -X POST http://localhost:3000/api/producers \
   -d '{
     "taxId": "12345678900",
     "name": "John Doe"
+    "email": "jd@gmail.com"
   }'
 ```
