@@ -1,17 +1,8 @@
-import { CreateCropDto } from './create.crop.dto';
-import { UpdateCropDto } from './update.crop.dto';
+import { OmitType } from '@nestjs/swagger';
+import { CropDto } from './crop.dto';
 
-export class CropResponseDto extends UpdateCropDto {
-  createdAt: Date;
-  updatedAt: Date;
-}
+export class CropResponseDto extends CropDto {}
 
-export class CreateCropResponseDto extends CreateCropDto {
-  id: string;
-  createdAt: Date;
-}
+export class CreateCropResponseDto extends OmitType(CropDto, ['updatedAt']) {}
 
-export class UpdateCropResponseDto extends UpdateCropDto {
-  createdAt: Date;
-  updatedAt: Date;
-}
+export class UpdateCropResponseDto extends CropDto {}

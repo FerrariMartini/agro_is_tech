@@ -1,15 +1,8 @@
-import { IsUUID, IsString, IsNotEmpty } from 'class-validator';
+import { CropDto } from './crop.dto';
+import { OmitType } from '@nestjs/swagger';
 
-export class CreateCropDto {
-  @IsString()
-  @IsNotEmpty()
-  description: string;
-
-  @IsString()
-  @IsNotEmpty()
-  seed: string;
-
-  @IsUUID()
-  @IsNotEmpty()
-  harvestId: string;
-}
+export class CreateCropDto extends OmitType(CropDto, [
+  'id',
+  'createdAt',
+  'updatedAt',
+]) {}
