@@ -2,7 +2,6 @@ import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './application/modules/app.module';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
-import { AllExceptionsFilter } from './shared/errors/all.exception.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
@@ -14,7 +13,6 @@ async function bootstrap() {
     header: 'X-API-Version',
   });
 
-  app.useGlobalFilters(new AllExceptionsFilter());
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

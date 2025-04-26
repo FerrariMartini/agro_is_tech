@@ -6,12 +6,21 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { Response } from 'express';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import { errorsMap } from './errors.map';
+import { ErrorLogOrmEntity } from '@/infrastructure/database/typeorm/entities/error.logs.orm.entity';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
-  catch(exception: any, host: ArgumentsHost) {
+  constructor(
+    @InjectRepository(ErrorLogOrmEntity)
+    private readonly errorLogRepository: Repository<ErrorLogOrmEntity>,
+  ) {}
+
+  async catch(exception: any, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
+    const request = ctx.getRequest<Request>();
     const response = ctx.getResponse<Response>();
 
     const status =
@@ -45,6 +54,19 @@ export class AllExceptionsFilter implements ExceptionFilter {
                 defaultMessage: message,
               },
         ];
+
+    await this.errorLogRepository.save(
+      this.errorLogRepository.create({
+        path: request.url,
+        method: request.method,
+        statusCode: status,
+        error,
+        message: JSON.stringify(formattedMessages),
+        stack: exception.stack,
+        payload: request.body,
+        headers: request.headers,
+      }),
+    );
 
     response.status(status).json({
       error,

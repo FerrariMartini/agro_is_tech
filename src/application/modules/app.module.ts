@@ -10,9 +10,13 @@ import { PropertyModule } from './property/property.module';
 import { HarvestModule } from './harvest/harvest.module';
 import { CropModule } from './crop/crop.module';
 import { SeedService } from '@/infrastructure/database/seed/seed.service';
+import { APP_FILTER } from '@nestjs/core';
+import { AllExceptionsFilter } from '@/shared/errors/all.exception.filter';
+import { ErrorLogOrmEntity } from '@/infrastructure/database/typeorm/entities/error.logs.orm.entity';
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([ErrorLogOrmEntity]),
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -27,6 +31,13 @@ import { SeedService } from '@/infrastructure/database/seed/seed.service';
     CropModule,
   ],
   controllers: [AppController],
-  providers: [AppService, SeedService],
+  providers: [
+    AppService,
+    SeedService,
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionsFilter,
+    },
+  ],
 })
 export class AppModule {}
