@@ -71,9 +71,10 @@ describe('PropertyController', () => {
   });
 
   it('should update a property', async () => {
-    const id = 'uuid';
+    const id = 'f3122e96-ceb7-40bb-a970-c819847dd31f';
 
-    const dto: Omit<UpdatePropertyDto, 'id'> = {
+    const dto: UpdatePropertyDto = {
+      id,
       name: 'Fazenda Nova America',
       city: 'Assis',
       state: 'SP',
@@ -84,7 +85,7 @@ describe('PropertyController', () => {
     };
 
     const expected: UpdatePropertyResponseDto = {
-      id: 'f3122e96-ceb7-40bb-a970-c819847dd31f',
+      id,
       name: 'Fazenda Nova America',
       city: 'Assis',
       state: 'SP',

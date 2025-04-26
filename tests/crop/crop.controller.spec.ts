@@ -68,7 +68,8 @@ describe('CropController', () => {
   });
 
   it('should update a crop', async () => {
-    const dto: Omit<UpdateCropDto, 'id'> = {
+    const dto: UpdateCropDto = {
+      id: generatedId,
       description,
       seed,
       harvestId,

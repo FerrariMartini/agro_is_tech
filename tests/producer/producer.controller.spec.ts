@@ -65,7 +65,11 @@ describe('ProducerController', () => {
   it('should update a producer', async () => {
     const id = 'uuid';
 
-    const dto: Omit<UpdateProducerDto, 'id'> = { email: 'updated@gmail.com' };
+    const dto: UpdateProducerDto = {
+      id,
+      email: 'updated@gmail.com',
+      name: 'John Doe',
+    };
 
     const expected: UpdateProducerResponseDto = {
       id,

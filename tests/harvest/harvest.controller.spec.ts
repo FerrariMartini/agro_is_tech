@@ -65,7 +65,8 @@ describe('HarvestController', () => {
   it('should update a harvest', async () => {
     const id = 'uuid';
 
-    const dto: Omit<UpdateHarvestDto, 'id'> = {
+    const dto: UpdateHarvestDto = {
+      id: 'f3122e96-ceb7-40bb-a970-c819847dd31f',
       year: 2024,
       description: 'Safra 1 - Year updated',
       propertyId: '94740606-d4c3-4879-8df2-6cd44b84c306',

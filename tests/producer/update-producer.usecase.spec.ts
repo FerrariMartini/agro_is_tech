@@ -63,6 +63,8 @@ describe('UpdateProducerUseCase', () => {
   it('should keep original fields if not provided in DTO', async () => {
     const dto: UpdateProducerDto = {
       id: 'uuid',
+      name,
+      email: 'jd@gmail.com',
     };
 
     mockRepository.findById.mockResolvedValue(currentProducerEntity);
@@ -77,8 +79,12 @@ describe('UpdateProducerUseCase', () => {
   it('should throw ProducerNotFoundException if producer not found', async () => {
     mockRepository.findById.mockResolvedValue(null);
 
-    await expect(useCase.execute({ id: 'non-existent-id' })).rejects.toThrow(
-      NotFoundException,
-    );
+    await expect(
+      useCase.execute({
+        id: 'non-existent-id',
+        email: 'update-email@gmao.com',
+        name: 'John Doe',
+      }),
+    ).rejects.toThrow(NotFoundException);
   });
 });
