@@ -13,6 +13,7 @@ import { SeedService } from '@/infrastructure/database/seed/seed.service';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from '@/shared/errors/all.exception.filter';
 import { ErrorLogOrmEntity } from '@/infrastructure/database/typeorm/entities/error.logs.orm.entity';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -29,6 +30,12 @@ import { ErrorLogOrmEntity } from '@/infrastructure/database/typeorm/entities/er
     PropertyModule,
     HarvestModule,
     CropModule,
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 10,
+      },
+    ]),
   ],
   controllers: [AppController],
   providers: [

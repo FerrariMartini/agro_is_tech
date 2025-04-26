@@ -10,7 +10,7 @@ Foco em boas práticas de engenharia como testes unitários, segurança de dados
 
 - **Backend**: NestJS + TypeScript
 - **Infraestrutura**: Docker + Docker Compose + PostgreSQL
-- **Segurança**: Criptografia AES-256 para dados sensíveis
+- **Segurança**: Criptografia AES-256 para dados sensíveis, CORS restrito, Helmet, Rate Limiting e validação rigorosa de input.
 - **Documentação**: Swagger (`/docs`)
 - **Arquitetura**: Hexagonal (Ports and Adapters)
 - **Boas práticas**: SOLID, DRY, KISS, Clean Code
@@ -324,6 +324,16 @@ src/
 - Soft delete com `deletedAt`
 - DTOs padronizados por operação (Create, Update, Response)
 - Uso extensivo de mapeadores (`Mapper`) para transformar entidades em DTOs
+
+---
+
+## 🔐 Segurança
+A API aplica boas práticas de segurança essenciais para ambiente público:
+
+- CORS restrito para origens confiáveis
+- Helmet para proteção de headers HTTP
+- Rate limiting (30 requisições/minuto por IP)
+- Validação de input rigorosa via DTOs
 
 ---
 
