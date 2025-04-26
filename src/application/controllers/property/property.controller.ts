@@ -1,6 +1,8 @@
 import {
   Body,
   Controller,
+  Delete,
+  Get,
   Param,
   ParseUUIDPipe,
   Post,
@@ -16,6 +18,13 @@ import {
 import { PropertyService } from '@/application/services/property/property.service';
 import { CreatePropertyDto } from '@/domain/property/dto/create.property.dto';
 import { UpdatePropertyDto } from '@/domain/property/dto/update.property.dto';
+import {
+  ApiCreateEndpoint,
+  ApiDeleteEndpoint,
+  ApiFindAllEndpoint,
+  ApiFindOneEndpoint,
+  ApiUpdateEndpoint,
+} from '@/shared/swagger/api.endpoints.decorator';
 
 @Controller('properties')
 export class PropertyController extends BaseCrudController<
@@ -29,6 +38,11 @@ export class PropertyController extends BaseCrudController<
   }
 
   @Post()
+  @ApiCreateEndpoint({
+    body: CreatePropertyDto,
+    response: CreatePropertyResponseDto,
+    conflict: true,
+  })
   async create(
     @Body() dto: CreatePropertyDto,
   ): Promise<CreatePropertyResponseDto> {
@@ -36,10 +50,34 @@ export class PropertyController extends BaseCrudController<
   }
 
   @Put(':id')
+  @ApiUpdateEndpoint({
+    body: UpdatePropertyDto,
+    response: UpdatePropertyResponseDto,
+  })
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: Omit<UpdatePropertyDto, 'id'>,
   ): Promise<UpdatePropertyResponseDto> {
     return this.service.update({ ...dto, id });
+  }
+
+  @Get()
+  @ApiFindAllEndpoint({ response: PropertyResponseDto })
+  async findAll(): Promise<PropertyResponseDto[]> {
+    return super.findAll();
+  }
+
+  @Get(':id')
+  @ApiFindOneEndpoint({ response: PropertyResponseDto })
+  async findById(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<PropertyResponseDto> {
+    return super.findById(id);
+  }
+
+  @Delete(':id')
+  @ApiDeleteEndpoint()
+  async delete(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
+    return super.delete(id);
   }
 }
