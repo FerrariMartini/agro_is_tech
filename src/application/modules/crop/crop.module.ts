@@ -11,6 +11,7 @@ import { CropService } from '@/application/services/crop/crop.service';
 @Module({
   imports: [TypeOrmModule.forFeature([CropOrmEntity])],
   controllers: [CropController],
+  exports: [CropService],
   providers: [
     {
       provide: CROP_REPOSITORY,

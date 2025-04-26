@@ -9,6 +9,7 @@ import { typeOrmConfig } from '../../config/typeorm.config';
 import { PropertyModule } from './property/property.module';
 import { HarvestModule } from './harvest/harvest.module';
 import { CropModule } from './crop/crop.module';
+import { SeedService } from '@/infrastructure/database/seed/seed.service';
 
 @Module({
   imports: [
@@ -26,6 +27,6 @@ import { CropModule } from './crop/crop.module';
     CropModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, SeedService],
 })
 export class AppModule {}

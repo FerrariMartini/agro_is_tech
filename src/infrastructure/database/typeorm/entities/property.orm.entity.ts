@@ -24,13 +24,13 @@ export class PropertyOrmEntity {
   @Column()
   state: string;
 
-  @Column()
+  @Column({ type: 'numeric', precision: 10, scale: 2 })
   totalArea: number;
 
-  @Column()
+  @Column({ type: 'numeric', precision: 10, scale: 2 })
   arableArea: number;
 
-  @Column()
+  @Column({ type: 'numeric', precision: 10, scale: 2 })
   vegetationArea: number;
 
   @Column()

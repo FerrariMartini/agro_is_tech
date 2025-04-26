@@ -11,6 +11,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 @Module({
   imports: [TypeOrmModule.forFeature([HarvestOrmEntity])],
   controllers: [HarvestController],
+  exports: [HarvestService],
   providers: [
     {
       provide: HARVEST_REPOSITORY,

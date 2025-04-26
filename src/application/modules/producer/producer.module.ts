@@ -13,6 +13,7 @@ import { ProducerMapper } from '@/application/mappers/producer.mapper';
 @Module({
   imports: [TypeOrmModule.forFeature([ProducerOrmEntity])],
   controllers: [ProducerController],
+  exports: [ProducerService],
   providers: [
     {
       provide: CRYPTO_SERVICE,

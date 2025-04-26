@@ -11,6 +11,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 @Module({
   imports: [TypeOrmModule.forFeature([PropertyOrmEntity])],
   controllers: [PropertyController],
+  exports: [PropertyService],
   providers: [
     {
       provide: PROPERTY_REPOSITORY,
