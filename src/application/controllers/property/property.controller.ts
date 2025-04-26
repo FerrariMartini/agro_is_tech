@@ -56,7 +56,7 @@ export class PropertyController extends BaseCrudController<
   })
   async update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: Omit<UpdatePropertyDto, 'id'>,
+    @Body() dto: UpdatePropertyDto,
   ): Promise<UpdatePropertyResponseDto> {
     return this.service.update({ ...dto, id });
   }
