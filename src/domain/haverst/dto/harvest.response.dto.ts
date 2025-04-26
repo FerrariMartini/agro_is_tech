@@ -1,17 +1,10 @@
-import { CreateHarvestDto } from './create.harvest.dto';
-import { UpdateHarvestDto } from './update.harvest.dto';
+import { OmitType } from '@nestjs/swagger';
+import { HarvestDto } from './harvest.dto';
 
-export class HarvestResponseDto extends UpdateHarvestDto {
-  createdAt: Date;
-  updatedAt: Date;
-}
+export class HarvestResponseDto extends HarvestDto {}
 
-export class CreateHarvestResponseDto extends CreateHarvestDto {
-  id: string;
-  createdAt: Date;
-}
+export class CreateHarvestResponseDto extends OmitType(HarvestDto, [
+  'updatedAt',
+]) {}
 
-export class UpdateHarvestResponseDto extends UpdateHarvestDto {
-  createdAt: Date;
-  updatedAt: Date;
-}
+export class UpdateHarvestResponseDto extends HarvestDto {}

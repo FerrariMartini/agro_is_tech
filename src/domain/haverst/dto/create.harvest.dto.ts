@@ -1,15 +1,8 @@
-import { IsUUID, IsInt, Min, Max, IsString, Length } from 'class-validator';
+import { OmitType } from '@nestjs/swagger';
+import { HarvestDto } from './harvest.dto';
 
-export class CreateHarvestDto {
-  @IsInt()
-  @Min(1900)
-  @Max(2100)
-  year: number;
-
-  @IsString()
-  @Length(2, 100)
-  description: string;
-
-  @IsUUID()
-  propertyId: string;
-}
+export class CreateHarvestDto extends OmitType(HarvestDto, [
+  'id',
+  'createdAt',
+  'updatedAt',
+]) {}
