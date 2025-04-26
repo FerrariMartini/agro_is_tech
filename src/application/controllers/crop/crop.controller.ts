@@ -54,7 +54,7 @@ export class CropController extends BaseCrudController<
   })
   async update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: Omit<UpdateCropDto, 'id'>,
+    @Body() dto: UpdateCropDto,
   ): Promise<UpdateCropResponseDto> {
     return this.service.update({ ...dto, id });
   }
