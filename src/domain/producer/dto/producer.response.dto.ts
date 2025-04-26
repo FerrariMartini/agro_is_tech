@@ -1,25 +1,10 @@
-export class CreateProducerResponseDto {
-  id: string;
-  taxId: string;
-  name: string;
-  email: string;
-  createdAt: Date;
-}
+import { OmitType } from '@nestjs/swagger';
+import { ProducerDto } from './producer.dto';
 
-export class UpdateProducerResponseDto {
-  id: string;
-  taxId: string;
-  name: string;
-  email: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+export class ProducerResponseDto extends ProducerDto {}
 
-export class ProducerResponseDto {
-  id: string;
-  taxId: string;
-  name: string;
-  email: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+export class CreateProducerResponseDto extends OmitType(ProducerDto, [
+  'updatedAt',
+]) {}
+
+export class UpdateProducerResponseDto extends ProducerDto {}

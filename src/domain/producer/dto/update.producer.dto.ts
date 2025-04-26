@@ -1,15 +1,8 @@
-import { IsString, IsOptional } from 'class-validator';
+import { OmitType } from '@nestjs/swagger';
+import { ProducerDto } from './producer.dto';
 
-// TODO: ESTOU USANDO UM PUT, ENTÂO TODOS OS DADOS DEVEM SER ENVIADS
-
-export class UpdateProducerDto {
-  readonly id: string;
-
-  @IsString()
-  @IsOptional()
-  name?: string;
-
-  @IsString()
-  @IsOptional()
-  email?: string;
-}
+export class UpdateProducerDto extends OmitType(ProducerDto, [
+  'id',
+  'createdAt',
+  'updatedAt',
+]) {}
