@@ -19,10 +19,17 @@ export class SeedService implements OnApplicationBootstrap {
   ) {}
 
   async onApplicationBootstrap() {
-    if (process.env.NODE_ENV !== 'dev') {
+    if (process.env.NODE_ENV !== 'dev') return;
+
+    const producers = await this.producerService.findAll();
+    if (producers.length > 0) {
+      console.log(
+        '>>>>>>>>>>>>>>>>>>> Database already seeded <<<<<<<<<<<<<<<<<<<<',
+      );
       return;
     }
 
+    console.log('>>>>>>>>>>>>>>>>>>> SEEDING DB <<<<<<<<<<<<<<<<<<<<');
     await this.populateDatabase();
   }
 
@@ -41,7 +48,9 @@ export class SeedService implements OnApplicationBootstrap {
       }
     }
 
-    console.log('✅ Database seeded successfully!');
+    console.log(
+      '>>>>>>>>>>>>>>>>>>> Database seeded successfully! <<<<<<<<<<<<<<<<<<<<',
+    );
   }
 
   private async createProducer() {
