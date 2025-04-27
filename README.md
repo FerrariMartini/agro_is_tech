@@ -177,8 +177,6 @@ O projeto segue rigorosamente o padrão **Ports and Adapters**, com separação 
 - **Interface de saída**: repositórios desacoplados
 - **Infraestrutura**: TypeORM, implementações concretas, criptografia
 
-Cada camada comunica-se via interfaces (`ports`) e implementações (`adapters`).
-
 ---
 
 ### 🔁 Generics e Reuso
@@ -210,6 +208,7 @@ src/
 ├── shared/             # Use cases e serviços genéricos reutilizáveis
 
 ```
+---
 
 ### 📂 Analytic (Modulo Segregado)
 
@@ -253,6 +252,9 @@ A documentação do endpoint do modulo pode ser vista no swagger com os demais e
 Crie um arquivo `.env` na raiz:
 
 ```dotenv
+# Aplicação
+NODE_ENV=dev
+
 # Banco de Dados
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
@@ -265,11 +267,11 @@ DB_PASSWORD=postgres
 DB_NAME=agro_db
 
 # Chaves de Criptografia
-CRYPTO_SECRET_KEY=... (64 hex)
-CRYPTO_IV=... (32 hex)
+CRYPTO_SECRET_KEY=8c6add12a1c76f0486be907ebba40ed7488813b1f9bd9b141cc64d56afc282e7
+CRYPTO_IV=aed6e9e5ca17d51c3eae0af7b7cc6727
 ```
 
-Gere as chaves seguras:
+Use os exemplos ou gere as chaves seguras:
 ```bash
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 node -e "console.log(require('crypto').randomBytes(16).toString('hex'))"
@@ -302,7 +304,7 @@ Sem comandos manuais necessários!
 
 ---
 
-### 📊 Dados iniciais gerados automaticamente
+### 📊 Dados iniciais gerados automaticamente (Seed de banco)
 - 5 **Producers** 
 - Cada producer com 3 **Properties**
 - Cada property com 10 **Harvests** 
@@ -337,7 +339,7 @@ docker-compose down -v
 - Soft delete com `deletedAt`
 - DTOs padronizados por operação (Create, Update, Response)
 - Uso extensivo de mapeadores (`Mapper`) para transformar entidades em DTOs
-
+- Teste Unitários
 ---
 
 ## 🔐 Segurança
@@ -401,6 +403,8 @@ npm run test:cov
 # Start sem Docker
 npm install
 npm run start:dev
+
+Alterar o DB_HOST de DB_HOST=db para DB_HOST=localhost
 ```
 
 ---
