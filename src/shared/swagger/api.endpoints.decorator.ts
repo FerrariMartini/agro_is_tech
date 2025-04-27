@@ -6,8 +6,11 @@ import {
   ApiConflictResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiExtraModels,
+  getSchemaPath,
 } from '@nestjs/swagger';
 import { StandardExceptionResponseDto } from '../errors/dto/standard.error.response.dto';
+import { PaginatedResponseDto } from '../dto/paginated.response.dto';
 
 interface ApiEndpointOptions {
   body?: Type<unknown>; // Body só para POST/PUT
@@ -58,10 +61,18 @@ export function ApiUpdateEndpoint(options: ApiEndpointOptions) {
 
 export function ApiFindAllEndpoint(options: ApiEndpointOptions) {
   return applyDecorators(
+    ApiExtraModels(PaginatedResponseDto, options.response),
     ApiOkResponse({
       description: 'Resources listed successfully.',
-      type: options.response,
-      isArray: true,
+      schema: {
+        allOf: [{ $ref: getSchemaPath(PaginatedResponseDto) }],
+        properties: {
+          data: {
+            type: 'array',
+            items: { $ref: getSchemaPath(options.response) },
+          },
+        },
+      },
     }),
   );
 }

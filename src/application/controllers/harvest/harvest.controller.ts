@@ -7,6 +7,7 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { BaseCrudController } from '@/application/controllers/base.crud.controller';
 import { Harvest } from '@/domain/haverst/entities/harvest.entity';
@@ -25,6 +26,8 @@ import {
   ApiFindOneEndpoint,
   ApiUpdateEndpoint,
 } from '@/shared/swagger/api.endpoints.decorator';
+import { PaginatedResponseDto } from '@/shared/dto/paginated.response.dto';
+import { RequestPaginateQueryDto } from '@/shared/dto/paginate.query.request';
 
 @Controller('harvests')
 export class HarvestController extends BaseCrudController<
@@ -63,8 +66,10 @@ export class HarvestController extends BaseCrudController<
 
   @Get()
   @ApiFindAllEndpoint({ response: HarvestResponseDto })
-  async findAll(): Promise<HarvestResponseDto[]> {
-    return super.findAll();
+  async findAll(
+    @Query() queryParams: RequestPaginateQueryDto,
+  ): Promise<PaginatedResponseDto<HarvestResponseDto>> {
+    return super.findAll(queryParams);
   }
 
   @Get(':id')

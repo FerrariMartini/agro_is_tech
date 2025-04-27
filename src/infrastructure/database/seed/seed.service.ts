@@ -21,8 +21,12 @@ export class SeedService implements OnApplicationBootstrap {
   async onApplicationBootstrap() {
     if (process.env.NODE_ENV !== 'dev') return;
 
-    const producers = await this.producerService.findAll();
-    if (producers.length > 0) {
+    const producers = await this.producerService.findAll({
+      limit: 10,
+      page: 1,
+      orderBy: 'ASC',
+    });
+    if (producers.data.length > 0) {
       console.log(
         '>>>>>>>>>>>>>>>>>>> Database already seeded <<<<<<<<<<<<<<<<<<<<',
       );

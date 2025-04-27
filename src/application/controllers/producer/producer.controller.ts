@@ -7,6 +7,7 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { BaseCrudController } from '../base.crud.controller';
 import { Producer } from '@/domain/producer/entities/producer.entity';
@@ -25,6 +26,8 @@ import {
   ApiFindOneEndpoint,
   ApiUpdateEndpoint,
 } from '@/shared/swagger/api.endpoints.decorator';
+import { PaginatedResponseDto } from '@/shared/dto/paginated.response.dto';
+import { RequestPaginateQueryDto } from '@/shared/dto/paginate.query.request';
 
 @Controller('producers')
 export class ProducerController extends BaseCrudController<
@@ -65,8 +68,10 @@ export class ProducerController extends BaseCrudController<
 
   @Get()
   @ApiFindAllEndpoint({ response: ProducerResponseDto })
-  async findAll(): Promise<ProducerResponseDto[]> {
-    return super.findAll();
+  async findAll(
+    @Query() queryParams: RequestPaginateQueryDto,
+  ): Promise<PaginatedResponseDto<ProducerResponseDto>> {
+    return super.findAll(queryParams);
   }
 
   @Get(':id')

@@ -7,6 +7,7 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { Property } from '@/domain/property/entities/property.entity';
 import { BaseCrudController } from '@/application/controllers/base.crud.controller';
@@ -25,6 +26,8 @@ import {
   ApiFindOneEndpoint,
   ApiUpdateEndpoint,
 } from '@/shared/swagger/api.endpoints.decorator';
+import { PaginatedResponseDto } from '@/shared/dto/paginated.response.dto';
+import { RequestPaginateQueryDto } from '@/shared/dto/paginate.query.request';
 
 @Controller('properties')
 export class PropertyController extends BaseCrudController<
@@ -63,8 +66,10 @@ export class PropertyController extends BaseCrudController<
 
   @Get()
   @ApiFindAllEndpoint({ response: PropertyResponseDto })
-  async findAll(): Promise<PropertyResponseDto[]> {
-    return super.findAll();
+  async findAll(
+    @Query() queryParams: RequestPaginateQueryDto,
+  ): Promise<PaginatedResponseDto<PropertyResponseDto>> {
+    return super.findAll(queryParams);
   }
 
   @Get(':id')

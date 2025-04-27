@@ -7,6 +7,7 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { BaseCrudController } from '@/application/controllers/base.crud.controller';
 import { Crop } from '@/domain/crop/entities/crop.entity';
@@ -25,6 +26,8 @@ import {
   ApiFindOneEndpoint,
   ApiUpdateEndpoint,
 } from '@/shared/swagger/api.endpoints.decorator';
+import { PaginatedResponseDto } from '@/shared/dto/paginated.response.dto';
+import { RequestPaginateQueryDto } from '@/shared/dto/paginate.query.request';
 
 @Controller('crops')
 export class CropController extends BaseCrudController<
@@ -61,8 +64,10 @@ export class CropController extends BaseCrudController<
 
   @Get()
   @ApiFindAllEndpoint({ response: CropResponseDto })
-  async findAll(): Promise<CropResponseDto[]> {
-    return super.findAll();
+  async findAll(
+    @Query() queryParams: RequestPaginateQueryDto,
+  ): Promise<PaginatedResponseDto<CropResponseDto>> {
+    return super.findAll(queryParams);
   }
 
   @Get(':id')

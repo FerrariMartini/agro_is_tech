@@ -6,8 +6,11 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { BaseCrudService } from '../services/base.crud.service';
+import { PaginatedResponseDto } from '@/shared/dto/paginated.response.dto';
+import { RequestPaginateQueryDto } from '@/shared/dto/paginate.query.request';
 
 export abstract class BaseCrudController<
   TEntity,
@@ -42,8 +45,10 @@ export abstract class BaseCrudController<
   }
 
   @Get()
-  async findAll(): Promise<TResponse[]> {
-    return await this.service.findAll();
+  async findAll(
+    @Query() queryParams: RequestPaginateQueryDto,
+  ): Promise<PaginatedResponseDto<TResponse>> {
+    return await this.service.findAll(queryParams);
   }
 
   @Get(':id')

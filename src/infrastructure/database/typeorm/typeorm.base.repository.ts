@@ -1,3 +1,4 @@
+import { RequestPaginateQueryDto } from '@/shared/dto/paginate.query.request';
 import { IsNull, ObjectLiteral, Repository } from 'typeorm';
 
 export abstract class TypeOrmBaseRepository<
@@ -14,9 +15,22 @@ export abstract class TypeOrmBaseRepository<
     return found ? this.toDomainEntity(found) : null;
   }
 
-  async findAll(): Promise<TDomain[]> {
-    const all = await this.repo.find({ where: { deletedAt: IsNull() as any } });
-    return all.map((e) => this.toDomainEntity(e));
+  async findAll(
+    queryParams: RequestPaginateQueryDto,
+  ): Promise<{ data: TDomain[]; total: number }> {
+    const { page = 1, limit = 10, orderBy } = queryParams;
+
+    const [all, total] = await this.repo.findAndCount({
+      where: { deletedAt: IsNull() as any },
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { createdAt: orderBy as any },
+    });
+
+    return {
+      data: all.map((e) => this.toDomainEntity(e)),
+      total,
+    };
   }
 
   async create(domain: TDomain): Promise<TDomain> {

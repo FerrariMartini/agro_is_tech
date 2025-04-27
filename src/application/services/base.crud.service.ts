@@ -1,3 +1,7 @@
+import { PaginateQueryDto } from '@/shared/dto/paginate.query';
+import { RequestPaginateQueryDto } from '@/shared/dto/paginate.query.request';
+import { PaginatedResponseDto } from '@/shared/dto/paginated.response.dto';
+
 export abstract class BaseCrudService<
   TDomain,
   TCreateResponse = TDomain,
@@ -16,7 +20,11 @@ export abstract class BaseCrudService<
     protected readonly findByIdUseCase: {
       execute(id: string): Promise<TDomain>;
     },
-    protected readonly findAllUseCase: { execute(): Promise<TDomain[]> },
+    protected readonly findAllUseCase: {
+      execute(
+        params: RequestPaginateQueryDto,
+      ): Promise<PaginateQueryDto<TDomain>>;
+    },
     protected readonly deleteUseCase: { execute(id: string): Promise<void> },
   ) {}
 
@@ -35,9 +43,18 @@ export abstract class BaseCrudService<
     return this.map(result);
   }
 
-  async findAll(): Promise<TResponse[]> {
-    const results = await this.findAllUseCase.execute();
-    return results.map((r) => this.map(r));
+  async findAll(
+    params: RequestPaginateQueryDto,
+  ): Promise<PaginatedResponseDto<TResponse>> {
+    const { data, limit, page, total, orderBy } =
+      await this.findAllUseCase.execute(params);
+    return {
+      data: data.map((e) => this.map(e)),
+      total,
+      page,
+      limit,
+      orderBy,
+    };
   }
 
   async delete(id: string): Promise<void> {
