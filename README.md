@@ -36,6 +36,7 @@ Foco em boas práticas de engenharia como testes unitários, segurança de dados
 | 3 | Registro de várias culturas por fazenda do produtor | Relação: `Crop → Harvest → Property` | ✅ |
 | 4 | Associação de um produtor a 0, 1 ou mais propriedades | Relação via `producerId` em `Property` | ✅ |
 | 5 | Associação de uma propriedade a 0, 1 ou mais culturas por safra | Relação: `Harvest → Crop` | ✅ |
+| 6 | Endpoint para gerar dados para o dashboard | Modulo Analytics Segregado  | ✅ |
 
 ---
 
@@ -209,6 +210,36 @@ src/
 ├── shared/             # Use cases e serviços genéricos reutilizáveis
 
 ```
+
+### 📂 Analytic (Modulo Segregado)
+
+O módulo de Analytics foi criado para isolar as consultas agregadas do sistema principal, respeitando a separação entre:
+
+- Domínio (Domain Layer) → responsável pelas regras de negócio essenciais, como cadastro de produtores, propriedades, cultivos e safras.
+- Camada de Aplicação (Application Layer) → responsável por orquestrar casos de uso de leitura e montagem de relatórios, como dashboards analíticos.
+
+As consultas de leitura complexas (queries analíticas) não devem poluir os casos de uso de escrita (CRUDs de produtor, propriedade, etc).
+
+Por isso, criamos o módulo Analytics como um módulo separado dentro da camada de aplicação, com seus próprios controllers, services e use cases.
+
+## ⚙️ Estratégia de Evolução
+
+Este módulo foi projetado para crescer conforme as necessidades do sistema aumentem.
+
+**A curto prazo**:
+- Adicionar novos dashboards e relatórios.
+- Implementar filtros dinâmicos (por ano, estado, cultura, etc).
+- Paginação e ordenação para retornos mais extensos.
+
+**A médio/longo prazo**:
+- Evoluir para um microserviço de leitura (CQRS - Command Query Responsibility Segregation).
+- Implementar caching de queries agregadas para reduzir carga no banco.
+- Gerar pré-aggregaçōes periódicas em background para performance.
+
+Caso o volume de dados e acessos cresça muito, o módulo de Analytics poderá ser migrado para um serviço independente sem impacto no core do sistema.
+
+A documentação do endpoint do modulo pode ser vista no swagger com os demais endpoints.
+
 ---
 
 ## 🛠️ Como iniciar o projeto via Docker (DEV)
