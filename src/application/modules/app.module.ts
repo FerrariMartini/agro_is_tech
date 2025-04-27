@@ -14,6 +14,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from '@/shared/errors/all.exception.filter';
 import { ErrorLogOrmEntity } from '@/infrastructure/database/typeorm/entities/error.logs.orm.entity';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
     PropertyModule,
     HarvestModule,
     CropModule,
+    AnalyticsModule,
     ThrottlerModule.forRoot([
       {
         ttl: 60000,
