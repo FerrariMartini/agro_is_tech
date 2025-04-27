@@ -56,7 +56,6 @@ export class AnalyticsController {
     description:
       'Distribution of land usage between arable area and vegetation area.',
     type: AreaUsageResponseDto,
-    example: { arableArea: 154, vegetationArea: 545 },
   })
   @Get('area-usage')
   async getAreaUsage(): Promise<AreaUsageResponseDto> {
